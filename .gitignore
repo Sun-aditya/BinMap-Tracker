@@ -23,6 +23,9 @@ pnpm-debug.log*
 .vscode/
 .idea/
 
+# Local npm cache accidentally committed earlier
+.npm-cache/
+
 # Lockfiles
 package-lock.json
 pnpm-lock.yaml
