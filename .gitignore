@@ -1,0 +1,33 @@
+# Node and Next.js
+node_modules/
+.next/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Lockfiles
+package-lock.json
+pnpm-lock.yaml
+
+# Misc
+.envrc
+coverage/
+coverage/*

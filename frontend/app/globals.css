@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.city-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at top right, black 0%, transparent 62%);
+}
+
+.route-line {
+  background-image: linear-gradient(90deg, rgba(37, 99, 235, 0.9), rgba(34, 197, 94, 0.65));
+}
+
+.leaflet-container {
+  background: #0f172a;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.5;
+}
+
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: #94a3b8 !important;
+}
+
+.leaflet-control-attribution a {
+  color: #f8fafc !important;
+}
+
+.binmap-user-marker,
+.binmap-marker {
+  background: transparent;
+  border: 0;
+}
+
+.binmap-user-marker span,
+.binmap-marker span {
+  display: block;
+  border-radius: 999px;
+}
+
+.binmap-user-marker span {
+  width: 22px;
+  height: 22px;
+  background: #2563eb;
+  border: 4px solid #f8fafc;
+  box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.22);
+}
+
+.binmap-marker span {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f8fafc;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.35);
+}
+
+.binmap-marker-available span {
+  background: #22c55e;
+}
+
+.binmap-marker-full span {
+  background: #f59e0b;
+}
+
+.binmap-marker-damaged span {
+  background: #ef4444;
+}
+
+.binmap-selected-marker {
+  background: transparent;
+  border: 0;
+}
+
+.binmap-selected-marker span {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 4px solid #f8fafc;
+  box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.22), 0 18px 35px rgba(15, 23, 42, 0.35);
+}
