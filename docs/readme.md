@@ -1,5 +1,7 @@
 # BinMap
 
+Live on: https://bin-map-tracker-rfdw-6odhujf4d-myselfaditya77-9724s-projects.vercel.app/
+
 ## Overview
 
 BinMap is a community-driven platform that helps users locate nearby public dustbins and contribute new dustbin locations.
@@ -103,4 +105,4 @@ Storage:
 
 Create the largest community-driven public dustbin map.
 
-Live on : https://bin-map-tracker-rfdw-6odhujf4d-myselfaditya77-9724s-projects.vercel.app/map
+
