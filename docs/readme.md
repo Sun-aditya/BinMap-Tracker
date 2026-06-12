@@ -102,3 +102,5 @@ Storage:
 ## Mission
 
 Create the largest community-driven public dustbin map.
+
+Live on : https://bin-map-tracker-rfdw-6odhujf4d-myselfaditya77-9724s-projects.vercel.app/map
