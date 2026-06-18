@@ -12,7 +12,6 @@ import {
   ExternalLink,
   LocateFixed,
   MapPin,
-  Navigation,
   Plus,
   RotateCcw,
   Trash2,
@@ -94,7 +93,7 @@ function Header() {
       </div>
       <Link
         href="/add-dustbin"
-        className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-binmap-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+        className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-binmap-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
       >
         <Plus size={16} />
         <span className="hidden sm:inline">Add a Dustbin</span>
@@ -168,7 +167,7 @@ function InfoPanel({
               href={directionsHref ?? "#"}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+              className="mt-4 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
             >
               Get Directions
               <ExternalLink size={16} />
@@ -187,7 +186,7 @@ function InfoPanel({
             </p>
             <Link
               href="/add-dustbin"
-              className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+              className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
             >
               Add a Dustbin
               <Plus size={16} />
@@ -292,8 +291,8 @@ export default function MapExperience() {
           center={[userLocation.lat, userLocation.lng]}
           radius={SEARCH_RADIUS_KM * 1000}
           pathOptions={{
-            color: "#2563EB",
-            fillColor: "#2563EB",
+            color: "#5F6368",
+            fillColor: "#5F6368",
             fillOpacity: 0.08,
             weight: 1,
           }}

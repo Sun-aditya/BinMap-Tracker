@@ -82,7 +82,7 @@ function Navbar() {
         </div>
         <a
           href="/map"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
         >
           Let&apos;s Start
           <ArrowRight size={16} />
@@ -112,7 +112,7 @@ function ButtonLink({
 }) {
   const classes =
     variant === "primary"
-      ? "bg-binmap-primary text-white hover:bg-blue-500"
+      ? "bg-binmap-primary text-white hover:bg-neutral-500"
       : "border border-white/12 bg-white/[0.04] text-binmap-text hover:bg-white/[0.08]";
 
   return (
@@ -140,11 +140,11 @@ function CitySignal() {
           </span>
         </div>
 
-        <div className="relative min-h-[280px] rounded-xl border border-white/10 bg-slate-950/50 p-4">
-          <div className="absolute left-[14%] top-[22%] h-3 w-3 rounded-full bg-binmap-success shadow-[0_0_0_8px_rgba(34,197,94,0.16)]" />
-          <div className="absolute right-[18%] top-[34%] h-3 w-3 rounded-full bg-binmap-primary shadow-[0_0_0_8px_rgba(37,99,235,0.18)]" />
-          <div className="absolute bottom-[26%] left-[30%] h-3 w-3 rounded-full bg-binmap-primary shadow-[0_0_0_8px_rgba(37,99,235,0.18)]" />
-          <div className="absolute bottom-[18%] right-[28%] h-3 w-3 rounded-full bg-binmap-warning shadow-[0_0_0_8px_rgba(245,158,11,0.18)]" />
+        <div className="relative min-h-[280px] rounded-xl border border-white/10 bg-black/45 p-4">
+          <div className="absolute left-[14%] top-[22%] h-3 w-3 rounded-full bg-binmap-success shadow-[0_0_0_8px_rgba(125,211,168,0.16)]" />
+          <div className="absolute right-[18%] top-[34%] h-3 w-3 rounded-full bg-binmap-primary shadow-[0_0_0_8px_rgba(95,99,104,0.24)]" />
+          <div className="absolute bottom-[26%] left-[30%] h-3 w-3 rounded-full bg-binmap-primary shadow-[0_0_0_8px_rgba(95,99,104,0.24)]" />
+          <div className="absolute bottom-[18%] right-[28%] h-3 w-3 rounded-full bg-binmap-warning shadow-[0_0_0_8px_rgba(214,167,96,0.18)]" />
           <div className="route-line absolute left-[17%] top-[28%] h-1 w-[58%] rotate-[14deg] rounded-full opacity-80" />
 
           <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/10 bg-binmap-bg/92 p-4">
@@ -169,7 +169,7 @@ function CitySignal() {
 function Hero() {
   return (
     <section id="start" className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(37,99,235,0.18),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(34,197,94,0.12),transparent_24%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.07),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_46%)]" />
       <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-5 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
         <div className="relative">
           <div className="mb-6 flex flex-wrap gap-3">
@@ -177,10 +177,10 @@ function Hero() {
               <MissionChip key={chip} label={chip} />
             ))}
           </div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-binmap-success">
+          <p className="mb-4 text-sm font-semibold-sans uppercase tracking-[0.18em] text-binmap-success">
             Public cleanliness, made easier
           </p>
-          <h1 className="max-w-3xl font-display text-5xl font-semibold leading-[1.05] tracking-normal text-binmap-text sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl font-display text-5xl font leading-[1.05] tracking-normal text-binmap-text sm:text-6xl lg:text-7xl">
             A cleaner city starts with knowing where the dustbins are.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-binmap-muted">
@@ -248,7 +248,7 @@ function CompactCard({
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="border-y border-white/10 bg-slate-950/35 px-5 py-20 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="border-y border-white/10 bg-black/35 px-5 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Use BinMap"
@@ -307,7 +307,7 @@ function Stats() {
 function Community() {
   return (
     <section id="community" className="px-5 pb-20 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 rounded-2xl border border-white/10 bg-slate-950/55 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+      <div className="mx-auto grid max-w-7xl gap-8 rounded-2xl border border-white/10 bg-black/55 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
         <div>
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-binmap-success/15 text-binmap-success">
             <Users size={23} />

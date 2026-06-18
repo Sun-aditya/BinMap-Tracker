@@ -9,22 +9,22 @@ const config: Config = {
     extend: {
       colors: {
         binmap: {
-          bg: "#0F172A",
-          surface: "#1E293B",
-          primary: "#2563EB",
-          success: "#22C55E",
-          warning: "#F59E0B",
-          danger: "#EF4444",
-          text: "#F8FAFC",
-          muted: "#94A3B8",
+          bg: "#070707",
+          surface: "#171717",
+          primary: "#5F6368",
+          success: "#7DD3A8",
+          warning: "#D6A760",
+          danger: "#E07A7A",
+          text: "#F4F1EA",
+          muted: "#A8A29E",
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        display: ["var(--font-space-grotesk)", "Space Grotesk", "system-ui", "sans-serif"],
+        sans: ["Aptos", "Segoe UI Variable", "Segoe UI", "Inter", "system-ui", "sans-serif"],
+        display: ["Georgia", "Cormorant Garamond", "Times New Roman", "serif"],
       },
       boxShadow: {
-        soft: "0 20px 60px rgba(15, 23, 42, 0.35)",
+        soft: "0 24px 70px rgba(0, 0, 0, 0.42)",
       },
     },
   },

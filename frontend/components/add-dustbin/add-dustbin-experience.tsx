@@ -241,7 +241,7 @@ export default function AddDustbinExperience() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/map"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-500"
               >
                 Back to Map
                 <MapPin size={17} />
@@ -307,7 +307,7 @@ export default function AddDustbinExperience() {
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Example: Sector 17 Plaza entrance"
-                  className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/55 px-4 text-sm text-binmap-text outline-none transition placeholder:text-binmap-muted focus:border-binmap-primary"
+                  className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-black/50 px-4 text-sm text-binmap-text outline-none transition placeholder:text-binmap-muted focus:border-binmap-primary"
                 />
               </label>
 
@@ -318,7 +318,7 @@ export default function AddDustbinExperience() {
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Mention nearby gate, footpath, shop, or public landmark."
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm leading-6 text-binmap-text outline-none transition placeholder:text-binmap-muted focus:border-binmap-primary"
+                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-sm leading-6 text-binmap-text outline-none transition placeholder:text-binmap-muted focus:border-binmap-primary"
                 />
               </label>
 
@@ -345,7 +345,7 @@ export default function AddDustbinExperience() {
 
               <div>
                 <p className="text-sm font-semibold">Dustbin image</p>
-                <label className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950/45 p-5 text-center transition hover:border-binmap-primary/70">
+                <label className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-black/45 p-5 text-center transition hover:border-binmap-primary/70">
                   {imagePreview ? (
                     <Image
                       src={imagePreview}
@@ -422,7 +422,7 @@ export default function AddDustbinExperience() {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-binmap-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-binmap-muted"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-binmap-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-binmap-muted"
               >
                 Submit for Review
                 <Send size={17} />
