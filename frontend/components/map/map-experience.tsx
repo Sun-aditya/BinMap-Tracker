@@ -131,7 +131,7 @@ function InfoPanel({
     : null;
 
   return (
-    <aside className="absolute bottom-4 left-4 right-4 z-[500] max-h-[45vh] overflow-hidden rounded-2xl border border-white/10 bg-binmap-bg/94 text-binmap-text shadow-soft backdrop-blur md:bottom-6 md:left-6 md:right-auto md:top-24 md:flex md:max-h-[calc(100vh-8rem)] md:w-[380px] md:flex-col">
+    <aside className="absolute bottom-4 left-4 right-4 z-[500] max-h-[45vh] overflow-hidden rounded-2xl border border-white/10 bg-binmap-bg text-binmap-text shadow-soft md:bottom-6 md:left-6 md:right-auto md:top-24 md:flex md:max-h-[calc(100vh-8rem)] md:w-[380px] md:flex-col">
       <div className="border-b border-white/10 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -151,10 +151,10 @@ function InfoPanel({
 
       <div className="overflow-y-auto p-4">
         {selectedDustbin ? (
-          <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <div className="mb-4 rounded-2xl border border-white/10 bg-binmap-surface p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display text-lg font-semibold">{selectedDustbin.name}</p>
+                <p className="font-display text-lg font-semibold text-binmap-text">{selectedDustbin.name}</p>
                 <p className="mt-1 text-sm text-binmap-muted">{selectedDustbin.description}</p>
               </div>
               <StatusBadge status={selectedDustbin.status} />
@@ -176,7 +176,7 @@ function InfoPanel({
         ) : null}
 
         {nearbyDustbins.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-center">
+          <div className="rounded-2xl border border-white/10 bg-binmap-surface p-5 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-binmap-warning/15 text-binmap-warning">
               <LocateFixed size={22} />
             </div>
@@ -199,11 +199,11 @@ function InfoPanel({
                 key={dustbin.id}
                 type="button"
                 onClick={() => onSelect(dustbin)}
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-left transition hover:border-white/20 hover:bg-white/[0.06]"
+                className="w-full rounded-2xl border border-white/10 bg-binmap-surface p-4 text-left transition hover:border-white/20 hover:bg-neutral-800"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold">{dustbin.name}</p>
+                    <p className="font-semibold text-binmap-text">{dustbin.name}</p>
                     <p className="mt-1 text-sm text-binmap-muted">{dustbin.distanceKm.toFixed(1)} km away</p>
                   </div>
                   <StatusBadge status={dustbin.status} />
