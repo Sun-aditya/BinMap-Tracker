@@ -21,16 +21,18 @@ import {
 } from "lucide-react";
 import { CHANDIGARH_CENTER, type DustbinStatus } from "@/components/map/dustbin-data";
 import { getStatusClass, getStatusLabel, type Coordinates } from "@/components/map/map-utils";
+import { submitDustbin } from "@/lib/binmap-api";
 
 type SubmissionState = {
+  id: string;
   name: string;
   description: string;
   status: DustbinStatus;
   lat: number;
   lng: number;
-  imageFile: File | null;
   submittedAt: string;
   approvalStatus: "pending";
+  persisted: boolean;
 };
 
 type LocationState = "idle" | "locating" | "granted" | "fallback" | "unsupported";
@@ -99,6 +101,8 @@ export default function AddDustbinExperience() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submittedDustbin, setSubmittedDustbin] = useState<SubmissionState | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const canSubmit = name.trim().length > 2 && description.trim().length > 5 && Boolean(selectedLocation);
 
@@ -173,23 +177,42 @@ export default function AddDustbinExperience() {
     );
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!canSubmit || !selectedLocation) {
       return;
     }
 
-    setSubmittedDustbin({
-      name: name.trim(),
-      description: description.trim(),
-      status,
-      lat: selectedLocation.lat,
-      lng: selectedLocation.lng,
-      imageFile,
-      submittedAt: new Date().toISOString(),
-      approvalStatus: "pending",
-    });
+    setSubmitting(true);
+    setSubmitError("");
+
+    const formData = new FormData();
+    formData.set("name", name.trim());
+    formData.set("description", description.trim());
+    formData.set("status", status);
+    formData.set("lat", String(selectedLocation.lat));
+    formData.set("lng", String(selectedLocation.lng));
+    if (imageFile) formData.set("image", imageFile);
+
+    try {
+      const result = await submitDustbin(formData);
+      setSubmittedDustbin({
+        id: result.id,
+        name: name.trim(),
+        description: description.trim(),
+        status,
+        lat: selectedLocation.lat,
+        lng: selectedLocation.lng,
+        submittedAt: new Date().toISOString(),
+        approvalStatus: result.status,
+        persisted: result.persisted,
+      });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to submit this dustbin.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetForm = () => {
@@ -206,6 +229,7 @@ export default function AddDustbinExperience() {
     setImagePreview(null);
     setSubmittedDustbin(null);
     setLocationState("idle");
+    setSubmitError("");
   };
 
   if (submittedDustbin) {
@@ -218,8 +242,9 @@ export default function AddDustbinExperience() {
             </div>
             <p className="mt-6 font-display text-3xl font-semibold">Submitted for review</p>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-binmap-muted">
-              Thanks for helping grow BinMap. This dustbin is saved locally for now and will later
-              move into the approval workflow.
+              {submittedDustbin.persisted
+                ? "Thanks for helping grow BinMap. An administrator will review this location before it appears publicly."
+                : "Supabase is not configured yet, so this was completed in demo mode and was not saved permanently."}
             </p>
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left">
@@ -236,6 +261,7 @@ export default function AddDustbinExperience() {
                 Location: {submittedDustbin.lat.toFixed(5)}, {submittedDustbin.lng.toFixed(5)}
               </p>
               <p className="mt-2 text-sm text-binmap-muted">Approval status: {submittedDustbin.approvalStatus}</p>
+              <p className="mt-2 text-xs text-binmap-muted">Reference: {submittedDustbin.id}</p>
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -419,12 +445,13 @@ export default function AddDustbinExperience() {
             </div>
 
             <div className="sticky bottom-4 mt-5 rounded-2xl border border-white/10 bg-binmap-bg/95 p-3 backdrop-blur">
+              {submitError ? <p className="mb-3 text-sm text-binmap-danger">{submitError}</p> : null}
               <button
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || submitting}
                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-binmap-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-500 disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-binmap-muted"
               >
-                Submit for Review
+                {submitting ? "Submitting..." : "Submit for Review"}
                 <Send size={17} />
               </button>
             </div>

@@ -4,12 +4,14 @@ import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Circle, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { MapContainer } from "react-leaflet/MapContainer";
 import {
   ArrowLeft,
+  CheckCircle2,
   ExternalLink,
+  Flag,
   LocateFixed,
   MapPin,
   Plus,
@@ -30,11 +32,14 @@ import {
   getStatusLabel,
   type Coordinates,
 } from "./map-utils";
+import { fetchNearbyDustbins, submitMissingReport } from "@/lib/binmap-api";
 
 type LocationState = "locating" | "granted" | "fallback" | "unsupported";
+type DataState = "loading" | "ready" | "fallback";
 
 type NearbyDustbin = Dustbin & {
   distanceKm: number;
+  imagePath?: string | null;
 };
 
 const statusMarkerClasses: Record<DustbinStatus, string> = {
@@ -60,6 +65,13 @@ function createDustbinIcon(status: DustbinStatus) {
   });
 }
 
+function getDemoNearby(origin: Coordinates): NearbyDustbin[] {
+  return demoDustbins
+    .map((dustbin) => ({ ...dustbin, distanceKm: distanceInKm(origin, dustbin) }))
+    .filter((dustbin) => dustbin.distanceKm <= SEARCH_RADIUS_KM)
+    .sort((a, b) => a.distanceKm - b.distanceKm);
+}
+
 function RecenterMap({ center }: { center: Coordinates }) {
   const map = useMap();
 
@@ -72,7 +84,7 @@ function RecenterMap({ center }: { center: Coordinates }) {
 
 function Header() {
   return (
-    <header className="absolute left-4 right-4 top-4 z-[500] flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-binmap-bg/92 p-3 text-binmap-text shadow-soft backdrop-blur md:left-6 md:right-6">
+    <header className="absolute left-4 right-4 top-4 z-[500] flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-binmap-bg p-3 text-binmap-text shadow-soft md:left-6 md:right-6">
       <div className="flex items-center gap-3">
         <Link
           href="/"
@@ -113,30 +125,68 @@ function StatusBadge({ status }: { status: DustbinStatus }) {
 
 function InfoPanel({
   locationState,
+  dataState,
   nearbyDustbins,
   selectedDustbin,
   origin,
+  reportedDustbinIds,
   onSelect,
   onLocateAgain,
+  onSubmitReport,
 }: {
   locationState: LocationState;
+  dataState: DataState;
   nearbyDustbins: NearbyDustbin[];
   selectedDustbin: NearbyDustbin | null;
   origin: Coordinates;
+  reportedDustbinIds: Set<string>;
   onSelect: (dustbin: NearbyDustbin) => void;
   onLocateAgain: () => void;
+  onSubmitReport: (dustbin: NearbyDustbin, note: string) => Promise<void>;
 }) {
+  const [reportingDustbinId, setReportingDustbinId] = useState<string | null>(null);
+  const [reportNote, setReportNote] = useState("");
+  const [reportError, setReportError] = useState("");
+  const [submittingReport, setSubmittingReport] = useState(false);
+
   const directionsHref = selectedDustbin
     ? createGoogleMapsDirectionsUrl(origin, selectedDustbin)
     : null;
+  const selectedIsReported = selectedDustbin
+    ? reportedDustbinIds.has(selectedDustbin.id)
+    : false;
+  const selectedIsReporting = selectedDustbin?.id === reportingDustbinId;
+
+  const cancelReport = () => {
+    setReportingDustbinId(null);
+    setReportNote("");
+    setReportError("");
+  };
+
+  const submitReport = async () => {
+    if (!selectedDustbin) return;
+    setSubmittingReport(true);
+    setReportError("");
+
+    try {
+      await onSubmitReport(selectedDustbin, reportNote);
+      cancelReport();
+    } catch (error) {
+      setReportError(error instanceof Error ? error.message : "Unable to submit this report.");
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
 
   return (
-    <aside className="absolute bottom-4 left-4 right-4 z-[500] max-h-[45vh] overflow-hidden rounded-2xl border border-white/10 bg-binmap-bg text-binmap-text shadow-soft md:bottom-6 md:left-6 md:right-auto md:top-24 md:flex md:max-h-[calc(100vh-8rem)] md:w-[380px] md:flex-col">
+    <aside className="absolute bottom-4 left-4 right-4 z-[500] max-h-[48vh] overflow-hidden rounded-2xl border border-white/10 bg-binmap-bg text-binmap-text shadow-soft md:bottom-6 md:left-6 md:right-auto md:top-24 md:flex md:max-h-[calc(100vh-8rem)] md:w-[380px] md:flex-col">
       <div className="border-b border-white/10 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-display text-xl font-semibold">Dustbins within 3 km</p>
-            <p className="mt-1 text-sm text-binmap-muted">{getLocationMessage(locationState)}</p>
+            <p className="mt-1 text-sm text-binmap-muted">
+              {getLocationMessage(locationState, dataState)}
+            </p>
           </div>
           <button
             type="button"
@@ -167,11 +217,69 @@ function InfoPanel({
               href={directionsHref ?? "#"}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
+              className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-binmap-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-500"
             >
               Get Directions
               <ExternalLink size={16} />
             </a>
+
+            {selectedIsReported ? (
+              <div className="mt-3 rounded-xl border border-binmap-danger/25 bg-binmap-danger/10 p-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-binmap-danger">
+                  <CheckCircle2 size={16} />
+                  Reported missing
+                </div>
+                <p className="mt-1 text-xs leading-5 text-binmap-muted">
+                  Thanks. This location will be reviewed.
+                </p>
+              </div>
+            ) : selectedIsReporting ? (
+              <div className="mt-3 rounded-xl border border-binmap-danger/25 bg-binmap-danger/10 p-3">
+                <p className="font-display text-base font-semibold">No dustbin here?</p>
+                <p className="mt-1 text-xs leading-5 text-binmap-muted">
+                  Submit this if the dustbin is not present at the marked location.
+                </p>
+                <textarea
+                  value={reportNote}
+                  onChange={(event) => setReportNote(event.target.value)}
+                  placeholder="Add a short note"
+                  rows={3}
+                  maxLength={500}
+                  className="mt-3 w-full resize-none rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm leading-6 text-binmap-text outline-none placeholder:text-binmap-muted focus:border-binmap-danger"
+                />
+                {reportError ? <p className="mt-2 text-xs text-binmap-danger">{reportError}</p> : null}
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={cancelReport}
+                    disabled={submittingReport}
+                    className="min-h-10 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={submitReport}
+                    disabled={submittingReport}
+                    className="min-h-10 rounded-xl border border-binmap-danger/25 bg-binmap-danger/15 px-3 text-sm font-semibold text-binmap-danger disabled:opacity-50"
+                  >
+                    {submittingReport ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setReportingDustbinId(selectedDustbin.id);
+                  setReportError("");
+                }}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-binmap-danger/25 px-4 py-2 text-sm font-semibold text-binmap-danger transition hover:bg-binmap-danger/10"
+              >
+                Report Missing
+                <Flag size={16} />
+              </button>
+            )}
           </div>
         ) : null}
 
@@ -203,7 +311,14 @@ function InfoPanel({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-binmap-text">{dustbin.name}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-binmap-text">{dustbin.name}</p>
+                      {reportedDustbinIds.has(dustbin.id) ? (
+                        <span className="rounded-full border border-binmap-danger/25 bg-binmap-danger/10 px-2 py-0.5 text-xs font-semibold text-binmap-danger">
+                          Reported missing
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="mt-1 text-sm text-binmap-muted">{dustbin.distanceKm.toFixed(1)} km away</p>
                   </div>
                   <StatusBadge status={dustbin.status} />
@@ -220,7 +335,13 @@ function InfoPanel({
 export default function MapExperience() {
   const [userLocation, setUserLocation] = useState<Coordinates>(CHANDIGARH_CENTER);
   const [locationState, setLocationState] = useState<LocationState>("locating");
+  const [dataState, setDataState] = useState<DataState>("loading");
+  const [nearbyDustbins, setNearbyDustbins] = useState<NearbyDustbin[]>(() =>
+    getDemoNearby(CHANDIGARH_CENTER),
+  );
+  const [backendConfigured, setBackendConfigured] = useState(false);
   const [selectedDustbinId, setSelectedDustbinId] = useState<string | null>(null);
+  const [reportedDustbinIds, setReportedDustbinIds] = useState<Set<string>>(() => new Set());
 
   const locateUser = () => {
     setLocationState("locating");
@@ -233,21 +354,14 @@ export default function MapExperience() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         setLocationState("granted");
       },
       () => {
         setUserLocation(CHANDIGARH_CENTER);
         setLocationState("fallback");
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 60000,
-      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
     );
   };
 
@@ -255,21 +369,35 @@ export default function MapExperience() {
     locateUser();
   }, []);
 
-  const nearbyDustbins = useMemo<NearbyDustbin[]>(() => {
-    return demoDustbins
-      .map((dustbin) => ({
-        ...dustbin,
-        distanceKm: distanceInKm(userLocation, dustbin),
-      }))
-      .filter((dustbin) => dustbin.distanceKm <= SEARCH_RADIUS_KM)
-      .sort((a, b) => a.distanceKm - b.distanceKm);
+  useEffect(() => {
+    let active = true;
+    setDataState("loading");
+
+    fetchNearbyDustbins(userLocation, SEARCH_RADIUS_KM * 1000)
+      .then((result) => {
+        if (!active) return;
+        setBackendConfigured(result.configured);
+        setNearbyDustbins(result.configured ? result.dustbins : getDemoNearby(userLocation));
+        setDataState(result.configured ? "ready" : "fallback");
+      })
+      .catch(() => {
+        if (!active) return;
+        setBackendConfigured(false);
+        setNearbyDustbins(getDemoNearby(userLocation));
+        setDataState("fallback");
+      });
+
+    return () => {
+      active = false;
+    };
   }, [userLocation]);
 
   const selectedDustbin =
     nearbyDustbins.find((dustbin) => dustbin.id === selectedDustbinId) ?? nearbyDustbins[0] ?? null;
 
-  const handleSelectDustbin = (dustbin: NearbyDustbin) => {
-    setSelectedDustbinId(dustbin.id);
+  const handleSubmitReport = async (dustbin: NearbyDustbin, note: string) => {
+    await submitMissingReport(dustbin.id, note.trim(), userLocation, backendConfigured);
+    setReportedDustbinIds((current) => new Set(current).add(dustbin.id));
   };
 
   return (
@@ -290,12 +418,7 @@ export default function MapExperience() {
         <Circle
           center={[userLocation.lat, userLocation.lng]}
           radius={SEARCH_RADIUS_KM * 1000}
-          pathOptions={{
-            color: "#5F6368",
-            fillColor: "#5F6368",
-            fillOpacity: 0.08,
-            weight: 1,
-          }}
+          pathOptions={{ color: "#5F6368", fillColor: "#5F6368", fillOpacity: 0.08, weight: 1 }}
         />
         <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
           <Popup>Your current search location</Popup>
@@ -305,42 +428,36 @@ export default function MapExperience() {
             key={dustbin.id}
             position={[dustbin.lat, dustbin.lng]}
             icon={createDustbinIcon(dustbin.status)}
-            eventHandlers={{
-              click: () => handleSelectDustbin(dustbin),
-            }}
+            eventHandlers={{ click: () => setSelectedDustbinId(dustbin.id) }}
           >
             <Popup>
               <strong>{dustbin.name}</strong>
               <br />
-              {getStatusLabel(dustbin.status)} · {dustbin.distanceKm.toFixed(1)} km away
+              {getStatusLabel(dustbin.status)} - {dustbin.distanceKm.toFixed(1)} km away
             </Popup>
           </Marker>
         ))}
       </MapContainer>
       <InfoPanel
         locationState={locationState}
+        dataState={dataState}
         nearbyDustbins={nearbyDustbins}
         selectedDustbin={selectedDustbin}
         origin={userLocation}
-        onSelect={handleSelectDustbin}
+        reportedDustbinIds={reportedDustbinIds}
+        onSelect={(dustbin) => setSelectedDustbinId(dustbin.id)}
         onLocateAgain={locateUser}
+        onSubmitReport={handleSubmitReport}
       />
     </main>
   );
 }
 
-function getLocationMessage(locationState: LocationState) {
-  if (locationState === "locating") {
-    return "Locating you. Chandigarh is used while we wait.";
-  }
-
-  if (locationState === "fallback") {
-    return "Location permission was not available, so Chandigarh is shown.";
-  }
-
-  if (locationState === "unsupported") {
-    return "Your browser does not support location, so Chandigarh is shown.";
-  }
-
-  return "Showing public dustbins near your current location.";
+function getLocationMessage(locationState: LocationState, dataState: DataState) {
+  if (locationState === "locating") return "Locating you. Chandigarh is used while we wait.";
+  if (locationState === "fallback") return "Location permission was not available, so Chandigarh is shown.";
+  if (locationState === "unsupported") return "Your browser does not support location, so Chandigarh is shown.";
+  if (dataState === "loading") return "Loading approved dustbins near your location.";
+  if (dataState === "fallback") return "Showing demo dustbins until Supabase is connected.";
+  return "Showing approved dustbins near your current location.";
 }

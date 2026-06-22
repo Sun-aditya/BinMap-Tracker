@@ -52,25 +52,25 @@
 
 ### Supabase
 
-[ ] Create project
-[ ] Create tables
-[ ] Configure storage
+[ ] Create hosted project
+[x] Create migrations and tables
+[x] Configure storage schema and policies
 
 ---
 
 ## Authentication
 
-[ ] Login
+[x] Admin login UI
 [ ] Signup
-[ ] Admin role
+[x] Admin role and protected moderation API
 
 ---
 
 ## Moderation
 
-[ ] Pending submissions
-[ ] Approve
-[ ] Reject
+[x] Pending submissions
+[x] Approve
+[x] Reject
 
 ---
 
